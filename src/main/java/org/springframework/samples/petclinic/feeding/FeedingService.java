@@ -2,21 +2,38 @@ package org.springframework.samples.petclinic.feeding;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.pet.Pet;
+import org.springframework.samples.petclinic.pet.exceptions.DuplicatedPetNameException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+@Service
 public class FeedingService {
+	
+	@Autowired
+	private FeedingRepository feedingrepo;
+	
     public List<Feeding> getAll(){
-        return null;
+        return feedingrepo.findAll();
     }
 
     public List<FeedingType> getAllFeedingTypes(){
-        return null;
+        return feedingrepo.findAllFeedingTypes();
     }
 
     public FeedingType getFeedingType(String typeName) {
-        return null;
+        return feedingrepo.findFeedingTypeByName(typeName);
     }
 
+	@Transactional(rollbackFor = UnfeasibleFeedingException.class)
     public Feeding save(Feeding p) throws UnfeasibleFeedingException {
-        return null;       
+        if (p.getPet().getType()!=p.getFeedingType().getPetType()) {            	
+        	throw new UnfeasibleFeedingException();
+        }else
+            feedingrepo.save(p);
+        return p;       
     }
 
     
